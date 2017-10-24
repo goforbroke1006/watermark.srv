@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "v2"
+  name = "github.com/go-yaml/yaml"
+  packages = ["."]
+  revision = "eb3733d160e74a9c7e442f435eb3bea458e1d19f"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/image"
   packages = ["riff","vp8","vp8l","webp"]
@@ -10,6 +16,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0f8164cfd1eb14b60c99a6eddcae6dc23b592ef60a020f5ded9c2aa165f6c41c"
+  inputs-digest = "79a72f0274204bbb2762863b1e380401c6c14e630fb3ab3cb9a9df230b5521af"
   solver-name = "gps-cdcl"
   solver-version = 1

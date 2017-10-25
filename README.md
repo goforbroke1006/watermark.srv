@@ -1,4 +1,4 @@
-# watermark.srv
+# watermark.svc
 
 Deep dive in Golang's microservices philosophy
 

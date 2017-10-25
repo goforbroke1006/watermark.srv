@@ -10,6 +10,7 @@ import (
 	"io"
 	_ "golang.org/x/image/webp"
 	_ "image/jpeg"
+	"github.com/goforbroke1006/watermarksvc/config"
 )
 
 // convertToPNG converts from any recognized format to PNG.
@@ -28,4 +29,8 @@ func main() {
 	}
 
 	fmt.Println("Hello, " + user.Name)
+
+	cfg, _ := config.LoadConfig("./config.yml")
+
+	fmt.Println(cfg.InputDir)
 }

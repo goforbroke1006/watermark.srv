@@ -6,7 +6,8 @@ import (
 )
 
 type Config struct {
-
+	InputDir  string `yaml:"inputDir"`
+	OutputDir string `yaml:"outputDir"`
 }
 
 func LoadConfig(path string) (Config, error) {

@@ -1,6 +1,6 @@
-# watermark.svc
+# watermarksvc
 
-Deep dive in Golang's microservices philosophy
+Deep dive in Golang's micro-services philosophy
 
 
 ### Requirements

@@ -9,6 +9,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/nfnt/resize"
+  packages = ["."]
+  revision = "891127d8d1b52734debe1b3c3d7e747502b6c366"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/image"
   packages = ["riff","vp8","vp8l","webp"]
   revision = "f7e31b4ea2e3413ab91b4e7d2dc83e5f8d19a44c"
@@ -16,6 +22,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "79a72f0274204bbb2762863b1e380401c6c14e630fb3ab3cb9a9df230b5521af"
+  inputs-digest = "6bf9563f1e02790cee272200a01bde049c465df76cfb59dc881f4daed86c2f57"
   solver-name = "gps-cdcl"
   solver-version = 1

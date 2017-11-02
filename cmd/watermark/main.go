@@ -7,12 +7,12 @@ import (
 
 	_ "golang.org/x/image/webp"
 	"image"
-	"image/draw"
 	_ "image/gif"
 	"image/jpeg"
 	"image/png"
 
 	"github.com/goforbroke1006/watermarksvc/config"
+	"github.com/goforbroke1006/watermarksvc/strategy"
 )
 
 func openImage(filename string) (*image.Image, string) {
@@ -26,19 +26,7 @@ func openImage(filename string) (*image.Image, string) {
 	return &sourceImage, mimeType
 }
 
-func addWatermark(watermark *image.Image, pic *image.Image) image.Image {
-	r := image.Rectangle{image.Point{}, (*pic).Bounds().Size()}
-	r2 := image.Rectangle{image.Point{}, (*watermark).Bounds().Size()}
-
-	rgba := image.NewRGBA(r)
-
-	draw.Draw(rgba, (*pic).Bounds(), *pic, image.Point{0, 0}, draw.Src)
-	draw.Draw(rgba, r2, *watermark, image.Point{0, 0}, draw.Over)
-
-	return rgba
-}
-
-func saveFile(filename string, dist image.Image, mimeType string) {
+func saveFile(filename string, dist *image.RGBA, mimeType string) {
 	outfile, err := os.Create(filename)
 	doPanic(err)
 	defer outfile.Close()
@@ -58,12 +46,14 @@ func main() {
 	files, err := ioutil.ReadDir(cfg.InputDir)
 	doPanic(err)
 
+	stg := &strategy.UglySplitStrategy{Rows: 4}
+
 	for _, f := range files {
 		inFilename := cfg.InputDir + "/" + f.Name()
 		sourceImage, mimeType := openImage(inFilename)
 		fmt.Println(inFilename + " (" + mimeType + ")")
 
-		dist := addWatermark(wmImage, sourceImage)
+		dist := stg.AddWatermark(wmImage, sourceImage)
 
 		saveFile(cfg.OutputDir+"/"+f.Name(), dist, mimeType)
 	}

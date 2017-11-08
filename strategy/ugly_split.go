@@ -1,10 +1,10 @@
 package strategy
 
 import (
+	"github.com/nfnt/resize"
 	"image"
 	"image/draw"
 )
-import "github.com/nfnt/resize"
 
 type UglySplitStrategy struct {
 	Rows int

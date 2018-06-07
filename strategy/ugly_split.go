@@ -10,17 +10,17 @@ type UglySplitStrategy struct {
 	Rows int
 }
 
-func (s *UglySplitStrategy) AddWatermark(watermark *image.Image, pic *image.Image) *image.RGBA {
-	var partHeight int = (*pic).Bounds().Size().Y / s.Rows
-	var proportion float32 = float32(partHeight) / float32((*watermark).Bounds().Size().Y)
-	var partWidth int = int(float32((*watermark).Bounds().Size().X) * proportion)
-	var cols int = (*pic).Bounds().Size().X / partWidth
-
-	r := image.Rectangle{Min: image.Point{}, Max: (*pic).Bounds().Size()}
+func (s *UglySplitStrategy) AddWatermark(watermark image.Image, pic image.Image) image.Image {
+	r := image.Rectangle{Min: image.Point{}, Max: pic.Bounds().Size()}
 	rgba := image.NewRGBA(r)
-	draw.Draw(rgba, (*pic).Bounds(), *pic, image.Point{0, 0}, draw.Src)
+	draw.Draw(rgba, pic.Bounds(), pic, image.Point{0, 0}, draw.Src)
 
-	newImage := resize.Resize(uint(partWidth), uint(partHeight), *watermark, resize.Lanczos3)
+	var partHeight = pic.Bounds().Size().Y / s.Rows
+	var proportion = float32(partHeight) / float32(watermark.Bounds().Size().Y)
+	var partWidth = int(float32(watermark.Bounds().Size().X) * proportion)
+	var cols = pic.Bounds().Size().X / partWidth
+
+	newImage := resize.Resize(uint(partWidth), uint(partHeight), watermark, resize.Lanczos3)
 
 	for row := 0; row <= s.Rows; row++ {
 		for column := 0; column <= cols; column++ {

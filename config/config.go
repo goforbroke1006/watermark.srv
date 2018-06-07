@@ -6,9 +6,8 @@ import (
 )
 
 type Config struct {
-	WatermarkFile string `yaml:"watermarkFile"`
-	InputDir      string `yaml:"inputDir"`
-	OutputDir     string `yaml:"outputDir"`
+	WatermarkFile string   `yaml:"watermark"`
+	Directories   []string `yaml:"directories"`
 }
 
 func LoadConfig(path string) (Config, error) {

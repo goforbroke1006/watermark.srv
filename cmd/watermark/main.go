@@ -2,64 +2,110 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"io/ioutil"
 	"os"
-
-	_ "golang.org/x/image/webp"
-	"image"
-	_ "image/gif"
-	"image/jpeg"
-	"image/png"
+	"strings"
+	"time"
 
 	"github.com/goforbroke1006/watermarksvc/config"
 	"github.com/goforbroke1006/watermarksvc/strategy"
+	"github.com/goforbroke1006/watermarksvc/util/fs"
 )
-
-func openImage(filename string) (*image.Image, string) {
-	inFile, err := os.Open(filename)
-	doPanic(err)
-	defer inFile.Close()
-
-	sourceImage, mimeType, err := image.Decode(inFile)
-	doPanic(err)
-
-	return &sourceImage, mimeType
-}
-
-func saveFile(filename string, dist *image.RGBA, mimeType string) {
-	outfile, err := os.Create(filename)
-	doPanic(err)
-	defer outfile.Close()
-
-	if "jpeg" == mimeType {
-		jpeg.Encode(outfile, dist, nil)
-	} else if "png" == mimeType {
-		png.Encode(outfile, dist)
-	}
-}
 
 func main() {
 	cfg, _ := config.LoadConfig("./config.yml")
 
-	wmImage, _ := openImage(cfg.WatermarkFile)
-
-	files, err := ioutil.ReadDir(cfg.InputDir)
-	doPanic(err)
+	watermark, err := os.Open(cfg.WatermarkFile)
+	checkErr(err)
+	wmImage, _, err := image.Decode(watermark)
+	checkErr(err)
+	watermark.Close()
 
 	stg := &strategy.UglySplitStrategy{Rows: 4}
 
-	for _, f := range files {
-		inFilename := cfg.InputDir + "/" + f.Name()
-		sourceImage, mimeType := openImage(inFilename)
-		fmt.Println(inFilename + " (" + mimeType + ")")
+	semaphore := make(chan bool, 4)
 
-		dist := stg.AddWatermark(wmImage, sourceImage)
+	for {
+		for _, directory := range cfg.Directories {
 
-		saveFile(cfg.OutputDir+"/"+f.Name(), dist, mimeType)
+			files, err := ioutil.ReadDir(directory)
+			checkErr(err)
+
+			for _, f := range files {
+				if strings.Contains(f.Name(), "_origin.") {
+					continue
+				}
+
+				semaphore <- true
+
+				go func(f os.FileInfo) {
+					defer func(semaphore <-chan bool) { <-semaphore }(semaphore)
+
+					filename := directory + "/" + f.Name()
+
+					if hasBackupFile(filename) {
+						return
+					}
+
+					fmt.Println(filename)
+
+					doBackupFile(filename)
+					addWatermark(filename, wmImage, stg)
+				}(f)
+			}
+
+			time.Sleep(5 * time.Second)
+		}
 	}
 }
 
-func doPanic(err error) {
+func getBackupFilename(filename string) string {
+	dir, name, ext := fs.ParseFilename(filename)
+	return dir + "/" + name + "_origin." + ext
+}
+
+func hasBackupFile(filename string) bool {
+	return fs.IsFileExists(
+		getBackupFilename(filename),
+	)
+}
+
+func doBackupFile(filename string) {
+	file, err := os.Open(filename)
+	checkErr(err)
+	defer file.Close()
+
+	srcImage, _, err := image.Decode(file)
+	checkErr(err)
+
+	origFilename := getBackupFilename(filename)
+
+	origFile, err := os.Create(origFilename)
+	checkErr(err)
+	defer origFile.Close()
+
+	err = fs.SaveImage(filename, origFile, srcImage)
+	checkErr(err)
+}
+
+func addWatermark(filename string, watermark image.Image, strategy strategy.BaseStrategy) {
+	file, err := os.Open(filename)
+	checkErr(err)
+
+	src, _, err := image.Decode(file)
+	checkErr(err)
+
+	file.Close()
+
+	proceedImg := strategy.AddWatermark(watermark, src)
+
+	file2, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0777)
+	err = fs.SaveImage(filename, file2, proceedImg)
+	checkErr(err)
+}
+
+func checkErr(err error) {
 	if err != nil {
 		panic(err.Error())
 	}

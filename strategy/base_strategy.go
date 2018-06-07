@@ -1,7 +1,9 @@
 package strategy
 
-import "image"
+import (
+	"image"
+)
 
 type BaseStrategy interface {
-	AddWatermark(watermark *image.Image, pic *image.Image) *image.RGBA
+	AddWatermark(watermark image.Image, pic image.Image) image.Image
 }

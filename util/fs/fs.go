@@ -29,25 +29,6 @@ func ParseFilename(filename string) (directory, name, extension string) {
 	return
 }
 
-/*func GetImage(file io.Reader) (image.Image, string, error) {
-	img, mime, err := image.Decode(file)
-	if nil != err {
-		return nil, "", err
-	}
-
-	return img, mime, nil
-}*/
-
-/*func SaveDraw(file *os.File, dist *draw.Image) {
-	_, _, ext := ParseFilename(file.Name())
-
-	if "jpeg" == ext {
-		jpeg.Encode(file, dist, nil)
-	} else if "png" == ext {
-		png.Encode(file, dist)
-	}
-}*/
-
 func SaveImage(filename string, file *os.File, dist image.Image) error {
 	_, _, ext := ParseFilename(filename)
 

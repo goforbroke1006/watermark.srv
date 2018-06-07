@@ -13,6 +13,10 @@ import (
 	"github.com/goforbroke1006/watermarksvc/util/fs"
 )
 
+const (
+	BackupSuffix = "_origin"
+)
+
 func main() {
 	cfg, _ := config.LoadConfig("./config.yml")
 
@@ -33,7 +37,7 @@ func main() {
 			checkErr(err)
 
 			for _, f := range files {
-				if strings.Contains(f.Name(), "_origin.") {
+				if strings.Contains(f.Name(), BackupSuffix+".") {
 					continue
 				}
 
@@ -62,7 +66,7 @@ func main() {
 
 func getBackupFilename(filename string) string {
 	dir, name, ext := fs.ParseFilename(filename)
-	return dir + "/" + name + "_origin." + ext
+	return dir + "/" + name + BackupSuffix + "." + ext
 }
 
 func hasBackupFile(filename string) bool {
